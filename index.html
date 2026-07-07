@@ -311,6 +311,7 @@
       <button class="btn ghost" onclick="loadData()">🔄 รีเฟรชข้อมูล</button>
     </div>
     <div>ข้อมูลอ้างอิงจาก Google Sheet "Dashborad - STEP-Up SPEEDSTER" · อัปเดตอัตโนมัติทุก 30 วินาที</div>
+    <div id="debugLine" class="mono" style="margin-top:8px;font-size:11px;color:#5c6270;"></div>
   </div>
 </footer>
 
@@ -428,6 +429,9 @@ async function loadData(){
     EVENT_DAYS.forEach(dy => dayTotals[dy.d] = 0);
     let totalCoins = 0;
     let totalSubmissions = 0;
+    let dateParseOk = 0;
+    let dateParseFail = 0;
+    let sampleRawDate = null;
 
     for(let r=1;r<rows.length;r++){
       const row = rows[r];
@@ -439,7 +443,10 @@ async function loadData(){
       const steps = idx.steps!==undefined ? toNumber(row[idx.steps]) : 0;
       if(!empId && !name) continue;
 
-      let dayInfo = idx.dateField!==undefined ? extractDayFromDateStr(row[idx.dateField]) : null;
+      const rawDateVal = idx.dateField!==undefined ? row[idx.dateField] : undefined;
+      let dayInfo = idx.dateField!==undefined ? extractDayFromDateStr(rawDateVal) : null;
+      if(sampleRawDate === null && idx.dateField!==undefined) sampleRawDate = rawDateVal;
+      if(dayInfo && dayInfo.month === MONTH_NUM) dateParseOk++; else dateParseFail++;
 
       totalCoins += coins;
       totalSubmissions++;
@@ -475,6 +482,13 @@ async function loadData(){
     const now = new Date();
     document.getElementById('liveDayPill').textContent = 'อัปเดตล่าสุด ' + now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('lastUpdated').textContent = 'อัปเดตล่าสุด: ' + now.toLocaleString('th-TH');
+
+    const dbg = document.getElementById('debugLine');
+    if(dbg){
+      const dateColName = idx.dateField!==undefined ? headers[idx.dateField] : '(ไม่พบคอลัมน์วันที่)';
+      const stepColName = idx.steps!==undefined ? headers[idx.steps] : '(ไม่พบคอลัมน์จำนวนก้าว)';
+      dbg.textContent = `ตรวจสอบข้อมูล: คอลัมน์วันที่ = "${dateColName}" · คอลัมน์ก้าว = "${stepColName}" · ตัวอย่างค่าดิบวันที่ = "${sampleRawDate}" · แยกวันที่สำเร็จ ${dateParseOk} แถว / ไม่สำเร็จ ${dateParseFail} แถว`;
+    }
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('app').style.display = 'block';
