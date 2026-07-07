@@ -416,12 +416,12 @@ async function loadData(){
     const headers = rows[0].map(h => (h||'').trim());
     const idx = {};
     headers.forEach((h,i) => {
-      if(h.includes('รหัสพนักงาน')) idx.empId = i;
-      else if(h.includes('ชื่อ')) idx.name = i;
-      else if(h.includes('แผนก') || h.includes('หน่วยงาน')) idx.dept = i;
-      else if(h.includes('วันที่')) idx.dateField = i;
-      else if(h.includes('ก้าว')) idx.steps = i;
-      else if(h.toLowerCase().includes('coins') || h.includes('coin')) idx.coins = i;
+      if(idx.empId===undefined && h.includes('รหัสพนักงาน')) idx.empId = i;
+      else if(idx.name===undefined && h.includes('ชื่อ')) idx.name = i;
+      else if(idx.dept===undefined && (h.includes('แผนก') || h.includes('หน่วยงาน'))) idx.dept = i;
+      else if(idx.dateField===undefined && h.includes('วันที่') && !h.includes('รูปภาพ') && !h.includes('อัปโหลด')) idx.dateField = i;
+      else if(idx.steps===undefined && h.includes('ก้าว') && !h.includes('รูปภาพ') && !h.includes('อัปโหลด')) idx.steps = i;
+      else if(idx.coins===undefined && (h.toLowerCase().includes('coins') || h.includes('coin'))) idx.coins = i;
     });
 
     const empMap = new Map();
