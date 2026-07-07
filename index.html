@@ -365,11 +365,24 @@ function toNumber(v){
 
 function extractDayFromDateStr(s){
   if(!s) return null;
-  const parts = s.split(',')[0].trim().split('/');
-  if(parts.length < 2) return null;
-  const day = parseInt(parts[0],10);
-  const month = parseInt(parts[1],10);
+  const str = String(s).trim();
+  const nums = str.match(/\d+/g);
+  if(!nums || nums.length < 2) return null;
+
+  let day, month;
+  const yearIdx = nums.findIndex(n => n.length === 4);
+
+  if(nums.length >= 3 && yearIdx === 0){
+    month = parseInt(nums[1],10);
+    day = parseInt(nums[2],10);
+  } else {
+    day = parseInt(nums[0],10);
+    month = parseInt(nums[1],10);
+  }
+
   if(isNaN(day) || isNaN(month)) return null;
+  if(day > 31 && month <= 31){ const tmp = day; day = month; month = tmp; }
+  if(day < 1 || day > 31 || month < 1 || month > 12) return null;
   return {day, month};
 }
 
