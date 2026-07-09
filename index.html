@@ -493,7 +493,7 @@ async function loadData(){
     document.getElementById('loading').style.display = 'none';
     document.getElementById('app').style.display = 'block';
 
-    refreshTimer = setTimeout(loadData, 30000);
+    refreshTimer = setTimeout(loadData, 3600000);
   } catch(err){
     console.error(err);
     document.getElementById('loading').style.display = 'none';
